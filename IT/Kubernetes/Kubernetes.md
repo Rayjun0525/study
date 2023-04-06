@@ -33,4 +33,51 @@ containerd는 현재 docker에서 독립된 프로젝트이며, CNCF의 회원�
 그렇지 않다. docker CLI를 통한 실행처럼 이를 실행시켜줄 수 있는 툴이 필요하다.
 containerd를 설치하면 ctr이라는 툴이 함께 설치되기는 하지만, 사용자 친화적이지 않고, 기능도 제한적이다.
 ctr에 대한 더 나은 대안은 nerdctl, podman 등으로, docker와 아주 유사하며, 대부분의 명령어가 호환된다.
-crictl이라는 툴도 있으며, 이 툴은
+crictl이라는 툴도 있으며, 이 툴은 여러가지 런타임에 대한 지원을 한다. 하지만 디버깅툴에 가까워 컨테이너 제작에는 이상적이지는 않다.
+crictl은 pod도 직접적으로 확인이 가능하다. 하지만 kubelet과 정보를 주고받지 않기 때문에 crictl을 사용해 pod를 만들경우 kubelet이 자동으로 pod를 삭제한다는 문제가 있다.
+이제 대부분의 경우에는 crictl을 사용하는 것을 추천한다고 한다.
+
+## ETCD
+ETCD는 신뢰할 수 있는 분산 키-벨류 저장소이다.
+신속하고 안전하며 간단하다.
+### Install
+1. Download Binaries
+   crul -L https://github.com/etcd-io/etcd/releases/download/v3.4.24/etcd-v3.4.24-linux-amd64.tar.gz -o etcd-v3.4.24-linux-amd64.tar.gz
+2. Extract
+   tar -zxvf etcd-v3.4.24-linux-amd64.tar.gz
+3. Run ETCD Service
+   ./etcd
+
+service를 시작하면 ETCD는 2379 Port로 서비스 리슨이 시작된다.
+etcdctl을 통해서 ETCD를 사용할 수 있다.
+```bash
+./etcdctl set key1 value1 ## API 버전 2점대
+./etcdctl put key1 value1 ## API 버전 3점대
+```
+검색에는 get을 사용한다.
+```bash
+./etcdctl get key1
+```
+ETCD는 버전에 따라 명령어가 상이함으로 버전에 주의하여야 한다.
+v2.0 부터는 초당 1만건의 쓰기 기능을 지원하였으며, v3.0부터는 많은 기능개선이 되었기 때문이다.
+주의할 것은 v2.0과 v3.0 사이의 차이가 크다는 것으로, etcdctl을 실행할 때 다음과 같이 버전의 확인이 반드시 필요하다.
+```bash
+./etcdctl --version
+> etcdctl version: 3.4.24
+> API version: 2
+```
+여기서 API version이 중요한데, 2로 되어있는 경우 v2.0을, 3.n으로 되어있는 경우 v3.n을 API버전으로 인식한다는 것이다.
+기본적으로 etcdctl의 API version은 2로 설정되어 있으며, 만약 3버전대를 사용하고 싶다면 다음과 같이 설정해야 한다.
+```bash
+ETCDCTL_API=3 ./etcdctl version
+## 또는
+export ETCDCTL_API=3
+./etcdctl version
+```
+
+### K8S에서의 ETCD의 역할
+Kubernetes는 클러스터의 모든 변경사항을 ETCD에 저장한다.
+클러스터를 어떻게 구성하느냐에 따라 ETCD도 다양하게 배포된다.
+메뉴얼 설치의 경우 직접 ETCD를 다운로드 받아 설치해주어야 하며, kubeadm을 사용할 경우 자동 배포된다.
+만약 쿠버네티스를 HA로 구성할 경우 ETCD도 해당 Master Node의 수 만큼 자동으로 배포된다.
+
