@@ -76,8 +76,20 @@ export ETCDCTL_API=3
 ```
 
 ### K8S에서의 ETCD의 역할
-Kubernetes는 클러스터의 모든 변경사항을 ETCD에 저장한다.
+Kubernetes는 클러스터의 모든 변경사항을 ETCD에 저장한다. (API server가 저장)
 클러스터를 어떻게 구성하느냐에 따라 ETCD도 다양하게 배포된다.
 메뉴얼 설치의 경우 직접 ETCD를 다운로드 받아 설치해주어야 하며, kubeadm을 사용할 경우 자동 배포된다.
 만약 쿠버네티스를 HA로 구성할 경우 ETCD도 해당 Master Node의 수 만큼 자동으로 배포된다.
+기본적으로 쿠버네티스가 ETCD에 접속하고자 한다면 2379 포트를 쿠버네티스 API server가 접근할 수 있게 열어두어야 한다.
+
+### Kube-apiserver
+kube-apiserver는 사용자로부터 직접적으로 커맨드를 입력받고, 그 정보를 바탕으로 모든 작업을 진행하는 컨트롤타워이다.
+kube-apiserver는 master node에 존재하며, etcd, scheduler, kubelet등을 관장한다.
+kube-apiserver가 담당하는 부분
+1. Authenticate User
+2. Validate Request
+3. Retrieve data
+4. Update ETCD
+5. Scheduler
+6. Kubelet
 
