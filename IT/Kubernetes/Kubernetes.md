@@ -133,3 +133,34 @@ kube-proxy는 각각의 node에 배포되어 service간의 통신을 중계한�
 kube-proxy의 중계방식은 iptables 규칙을 사용하는 것이 있다.
 kube-proxy는 각각의 node 마다 데몬셋으로 배포된다.
 
+### Pod
+Pod는 kuberntes가 만들 수 있는 가장 작은 object이다. 대부분의 경우에 pod는 하나의 container를 가지고있다.
+pod안에는 container가 여러개 존재할 수 있다는 의미이다. 이때문에 pod를 사용하면 container를 관리하는 측면에서 여러 container를 번들처럼 관리할 수 있다는 장점이 있다.
+하지만 여러개의 container를 하나의 pod에 배치하는 것은 극히 드문 일이다.
+pod를 만들 이미지는 온라인의 repository나 private repository에서 끌어올 수 있다.
+kubectl run [podname] --image [image name] 으로 pod를 만들때 사용할 image를 지정할 수 있다.
+YAML을 사용해서도 pod를 만들 수 있다.
+
+```yaml
+# YAML파일을 통한 pod의 생성에서 root level의 요소는 다음과 같다
+# 1. apiVersion : 만들고자 하는 object를 만들기 위해 사용하는 api의 버전을 말한다. 만들고자 하는 object가 어떤것인지에 따라 버전이 달라진다.
+# 2. kind : 만들고자 하는 object가 무엇인지 지정하는 부분.
+# 3. metadata : Dictionary 형태로 작성되는 모든 메타데이터를 지정하는 영역이다. 메타 아레의 요소들 앞에 붙는 공백의 갯수는 상관이 없지만, 들여쓰기는 반드시 맞춰주어야 한다.
+# 4. spec : 생성하려는 object에 따라 그 특성이 서로 다르기 때문에 object마다 spec영역에서 사용 가능한 속성들이 다르다. spec영역도 Dictionary 형식으로 작성한다.
+
+#sample.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-pod
+  labels:                  # labels에서는 key: value 형태로 라벨을 붙일 수 있는데, 이는 pod들을 필터링하는 용도로 사용할 수 있다.
+     app: myapp            # 다른 속성들과는 다르게 label은 app, type 등 원해는대로 붙여 필터링이 가능하다.
+spec:
+
+```
+다 작성된 YAML파일을 가지고 pod를 생성하기 위해서는 아래의 명령어를 사용할 수 있다.
+```bash
+kubectl create -f sample.yaml
+```
+
+
