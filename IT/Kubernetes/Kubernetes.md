@@ -93,3 +93,43 @@ kube-apiserver가 담당하는 부분
 5. Scheduler
 6. Kubelet
 
+kubectl get pods -n kube-system
+cat /etc/kuberntes/manifests/kube-apiserver.yaml
+
+### Kube-Controller-Manager
+master node 안에 존재하는 controller-manager는 클러스터의 전체적인 상태를 모니터링하고, 이벤트가 발생하면 그에 상응하는 조치를 취하는 역할을 한다.
+Kube-Contorller-Manager를 설치하면, 나머지 다른 Controller들도 함께 설치된다.
+
+Controller-Manager의 종류에는 여러가지가 있다. (아래는 몇몇 예시이다)
+1. Node-Controller : Kube-API-server를 통해 Node의 상태를 확인하고, Node안의 프로그램들이 정상적으로 동작할 수 있게 유지하는 역할을 한다. apiserver를 통해 5초마다 node의 상태를 점검한다. node가 하나 사용불가 상태가 되면, node-controller는 해당 node를 약 40초간 모니터링하고 난 이후에도 상태가 사용불가이면 unreachable 처리를 한다. 그리고 5분 후에는 해당 node를 클러스터에서 제외시키고, 해당 node가 가지고 있던 pod들을 사용가능한 node로 옮긴다. (Node Monitor Period = 5s / Node Monitor Grace Period = 40s / Pod Eviction Timeout = 5m)
+2. Replication-Controller : replicaset의 상태를 모니터링하는 역할을 하며, set안에 포함된 pod의 갯수를 항상 동일하게 유지하는 역할을 한다.
+이외
+- Deployment-Controller
+- Namespace-Controller
+- Endpoint-Controller
+- CronJob
+- Job-Controller
+- PV-Protection-Controller
+- Service-Account-Controller
+- Stateful-Set
+- Replicaset
+- PV-Binder-Controller
+
+### Kube-Scheduler
+Kube-Scheduler는 어떤 Pod가 어떤 Node에 배치될지만을 결정하는 역할을 한다. Pod를 만드는 것은 Kubelet이 담당한다.
+각각의 Pod는 요구하는 리소스가 서로 다르기 때문에 Kube-Scheduler는 각각의 Pod와 Node의 정보를 보고, 각 Pod가 배치될 최적의 Node를 찾는다.
+먼저 Node를 필터링하고, Node들에 대한 Rank를 산정한 이후 Pod를 배포한다.(Rank를 산정하는 방식은 여러가지가 있으며, 직접 만들수도 있다.)
+
+### Kubelet
+Kubelet은 모든 노드의 활동을 관리하는 관리주체이다. scheduler에 의해 worker node에 pod를 만들라는 요청을 받으면, 해당 node의 kubelet은 pod를 생성한다.
+Kubelet은 worker node에서 일어나는 일들을 모니터링하며 apiserver에 현황을 보고하는 역할을 수행한다.
+kubeadm을 사용해서 설치를 진행하더라도, kubelet은 자동으로 설치되지 않기 때문에 각각의 worker node에 수동으로 kubelet을 설치해주어야 한다.
+
+### Kube-proxy
+Kubernetes 클러스터 안에서는 모든 Pod는 다른 Pod에 연결될 수 있다.
+이는 Pod networking 솔루션을 클러스터에 배포함으로써 가능해지며, POD Network는 kubernetes cluster 내부의 모든 node와 pod에 걸친 가상네트워크이다.
+이러한 Pod network는 메모리 상에만 존재하는 service라는 object를 사용해 구현되는데, 모든 cluster에 걸쳐 배포될 수는 없다. 그리고 이를 보완하는 것이 kube-porxy이다.
+kube-proxy는 각각의 node에 배포되어 service간의 통신을 중계한다.
+kube-proxy의 중계방식은 iptables 규칙을 사용하는 것이 있다.
+kube-proxy는 각각의 node 마다 데몬셋으로 배포된다.
+
