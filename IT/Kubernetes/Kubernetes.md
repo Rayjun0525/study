@@ -235,4 +235,5 @@ kubectl apply -f [~~~.yaml]
 kubectl replace -f [~~~.yaml]
 kubectl scale --replicas=[n] -f [~~~.yaml]
 kubectl scale --replicas=[n] replicaset [replicaset name]
+kubectl edit [object] [objectname]
 ```
