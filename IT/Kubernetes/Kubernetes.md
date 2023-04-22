@@ -163,4 +163,76 @@ spec:
 kubectl create -f sample.yaml
 ```
 
+### Replication Controller
+Replication Controller는 Replica Set으로 대체되었다.  
+ReplicationController를 생성하기 위해 yaml파일을 작성한다면 다음과 같이 작성할 수 있다.  
 
+```yaml
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: myapp-rc
+  labels:
+    app: myapp
+    type: front-end
+spec:
+  template:    ##템플릿의 아래쪽으로 기존의 pod의 항목들을 위치시킬 수 있다. 템플릿은 결국 어떤 pod를 생성할지를 지정하는 부분이다.
+    metadata:
+      name: myapp-pod
+      labels:
+        app: myapp
+        type: front-end
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx
+  replicas: 3   ## replica는 템플릿을 기준으로 만들 pod가 몇개인지 설정하는 부분이다.
+
+```
+### Replica Set
+Replica Set은 Replication Controller의 대체제로, 거의 비슷한 형태를 띄고있다.  
+하지만 apiVersion은 apps/v1으로 조금 다르다. 
+또한 ReplicaSet은 selector 부분에 추가로 설정이 필요하다.  
+ReplicaSet의 가장 큰 차이점은 기존에 생성된 Pod도 함께 모니터링 할 수 있다는 것이다. 만약 selector를 통해 지정한 이미 만들어진 Pod가 종료된다면 ReplicaSet이 설정에 맞춰 새로 만들어주는 것이다.  
+
+
+```yaml
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: myapp-replicaset
+  labels:
+    app: myapp
+    type: front-end
+spec:
+  template:
+    metadata:
+      name: myapp-pod
+      labels:
+        app: myapp
+        type: front-end
+  spec:
+    containers:
+    - name: nginx-container
+      image: nginx
+  replica: 3
+  selector:
+    matchLabels:
+      type: front-end
+```
+
+
+## Kubectl 명령어
+```bash
+kubectl get pods -n [namespace]
+kubectl get pods -n [namespace] -o wide
+kubectl run [podname] --image=[imagename]
+kubectl delete pod [podname] -n [namespace] -o wide
+kubectl descirbe pod [podname] -n [namespace]
+kubectl run [podname] --image=[imagename] --dry-run -o yaml
+kubectl create -f [~~~.yaml]
+kubectl apply -f [~~~.yaml]
+kubectl replace -f [~~~.yaml]
+kubectl scale --replicas=[n] -f [~~~.yaml]
+kubectl scale --replicas=[n] replicaset [replicaset name]
+```
