@@ -221,6 +221,34 @@ spec:
       type: front-end
 ```
 
+### Deployment
+Pod에 대한 배포, 이미지 관리, 롤링 업데이트, 롤백, 일시정지, 재시작 등을 할 수 있게 해주는 오브젝트이다.  
+각각의 Pod를 배포하는 것이 아닌 Deployment를 통한 통합 배포가 가능하다.  
+```yaml
+apiVersion: apps/v1
+kind: Deployment  ## Deployment는 replicaset과 YAML파일이 거의 같다.
+metadata:
+  name: myapp-replicaset
+  labels:
+    app: myapp
+    type: front-end
+spec:
+  template:
+    metadata:
+      name: myapp-pod
+      labels:
+        app: myapp
+        type: front-end
+  spec:
+    containers:
+    - name: nginx-container
+      image: nginx
+  replica: 3
+  selector:
+    matchLabels:
+      type: front-end
+```
+
 
 ## Kubectl 명령어
 ```bash
@@ -229,11 +257,14 @@ kubectl get pods -n [namespace] -o wide
 kubectl run [podname] --image=[imagename]
 kubectl delete pod [podname] -n [namespace] -o wide
 kubectl descirbe pod [podname] -n [namespace]
-kubectl run [podname] --image=[imagename] --dry-run -o yaml
+kubectl run [podname] --image=[imagename] --dry-run=client -o yaml > [~~~.yaml]
+  >>> kubectl create deployment --image=nginx nginx --replicas=4 --dry-run=client -o yaml > nginx-deployment.yaml
 kubectl create -f [~~~.yaml]
 kubectl apply -f [~~~.yaml]
 kubectl replace -f [~~~.yaml]
 kubectl scale --replicas=[n] -f [~~~.yaml]
-kubectl scale --replicas=[n] replicaset [replicaset name]
+kubectl scale --replicas=[n] replicaset [replicasetname]
 kubectl edit [object] [objectname]
+kubectl get all
+
 ```
