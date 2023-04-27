@@ -225,7 +225,7 @@ spec:
 Pod그룹간의 통신을 중계하는 오브젝트이다.
 서비스에는 여러가지 타입이 있다.
 - NodePort : 클러스터의 노드 안의 포트에 접근할 수 있게 해주는 서비스. NodePort는 30000 ~ 32767까지의 범위에서만 지정 가능하다. 클러스터 전체에 걸쳐 설정될 수 있다.
-- ClusterIP : 클러스터 내부에 가상 IP를 생성하여 다른 서비스와 소통할 수 있게 해주는 서비스
+- ClusterIP : 클러스터 내부에 가상 IP를 생성하여 다른 서비스와 소통할 수 있게 해주는 서비스. Kubernetes의 기본 서비스타입은 ClusterIP이다.
 - LoadBalancer : 부하분산용 서비스
 
 #### 01. NodePort
@@ -279,8 +279,8 @@ spec:
 ```
 
 ### Deployment
-Pod에 대한 배포, 이미지 관리, 롤링 업데이트, 롤백, 일시정지, 재시작 등을 할 수 있게 해주는 오브젝트이다.  
-각각의 Pod를 배포하는 것이 아닌 Deployment를 통한 통합 배포가 가능하다.  
+Pod에 대한 배포, 이미지 관리, 롤링 업데이트, 롤백, 일시정지, 재시작 등을 할 수 있게 해주는 오브젝트이다.
+각각의 Pod를 배포하는 것이 아닌 Deployment를 통한 통합 배포가 가능하다.
 ```yaml
 apiVersion: apps/v1
 kind: Deployment  ## Deployment는 replicaset과 YAML파일이 거의 같다.
@@ -306,21 +306,81 @@ spec:
       type: front-end
 ```
 
+### Namespaces
+Namespace는 Kubernetes 오브젝트들의 격리를 제공한다. 클러스터 내부의 오브젝트들을 감싸는 큰 단위의 격리체계로 생각하면 된다.
+또한 리소스에 대한 제한도 가능하다. 각각의 Namespace는 리소스의 할당이 가능하며, 할당된 이상의 리소스는 사용하지 않는다.
+Namespace는 지정하지 않은 경우에는 기본적으로 생성되는 Default를 사용한다.
+kube-system Namespace 안에는 Kubernetes의 동작에 사용되는 필수 오브젝트들이 격리되어있다.
+kube-public에는 클러스터 공통으로 사용하는 오브젝트들이 격리되어 있다.
+
+```yaml
+## namespce-dev.yaml 예시
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dev
+
+## namespace의 설정 예시(Pod)
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-pod
+  namespace: dev  ## metadata의 하위에 namespace를 지정할 수 있다.
+  labels:
+    app: myapp
+    type: front-end
+spec:
+  containers:
+  - name: nginx-container
+    image: nginx
+```
+
+Namespace에서 사용하는 리소스를 제한하려면 Resource Quota를 생성해야한다.
+```yaml
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: compute-quota
+  namespace: dev
+sepc:
+  hard:
+    pods: "10"
+    requests.cpu: "4"
+    requests.memory: 5Gi
+    limits.cpu: "10"
+    limits.memory: 10Gi
+```
+
+
+
+### DNS
+[servicename].[namespace].svc.cluster.local
+
 ## Kubectl 명령어
 ```bash
-kubectl get pods -n [namespace]
-kubectl get pods -n [namespace] -o wide
+#pod 생성
 kubectl run [podname] --image=[imagename]
-kubectl delete pod [podname] -n [namespace] -o wide
+#pod 확인
 kubectl descirbe pod [podname] -n [namespace]
+kubectl get pods -n [namespace]
+kubectl get pods --all-namespaces
+kubectl get pods -A
+kubectl get pods -n [namespace] -o wide
+#pod 삭제
+kubectl delete pod [podname] -n [namespace] -o wide
+# yaml 생성
 kubectl run [podname] --image=[imagename] --dry-run=client -o yaml > [~~~.yaml]
   >>> kubectl create deployment --image=nginx nginx --replicas=4 --dry-run=client -o yaml > nginx-deployment.yaml
+# yaml을 통한 오브젝트 생성
 kubectl create -f [~~~.yaml]
 kubectl apply -f [~~~.yaml]
 kubectl replace -f [~~~.yaml]
 kubectl scale --replicas=[n] -f [~~~.yaml]
 kubectl scale --replicas=[n] replicaset [replicasetname]
+# 오브젝트 수정
 kubectl edit [object] [objectname]
+# 오브젝트 확인
 kubectl get all
-
+# kubectl에 대한 변수값 설정
+kubectl config set-context $(kubectl config current-context) --namespace=[namespace]
 ```
