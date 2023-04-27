@@ -350,11 +350,16 @@ sepc:
     limits.cpu: "10"
     limits.memory: 10Gi
 ```
-
-
-
 ### DNS
 [servicename].[namespace].svc.cluster.local
+
+### 명령형(Imperative) VS 선언형(Declarative)
+인프라를 코드로 관리하는 것에는 여러가지 접근방법이 있다.
+명령형은 어떻게 움직이라고 단계별 명령을 진행하는 것이고, 선언형은 YAML과 같은 파일에 정의해 둔 대로 명령을 수행하는 것을 말한다.
+kubectl을 사용하는 것은 명령형으로, 여러가지 명령을 커맨드로 수행할 수 있지만 제한적이다.
+YAML과 같은 파일에 지정하는 것은 선언형으로, Git과 같은곳에 저장하여 관리할 수 있으며, 변경하거나 검토하기에도 용이하다.
+시험등과 같은 상황에서는 명령형으로 오브젝트를 생성하는 것이 더 시간절약에 도움이 된다.
+
 
 ## Kubectl 명령어
 ```bash
@@ -374,6 +379,7 @@ kubectl run [podname] --image=[imagename] --dry-run=client -o yaml > [~~~.yaml]
 # yaml을 통한 오브젝트 생성
 kubectl create -f [~~~.yaml]
 kubectl apply -f [~~~.yaml]
+kubectl apply -f [~~~/dir] # 디렉토리 내부에 모든 파일들을 한번에 읽고 필요시 object 생성까지 진행
 kubectl replace -f [~~~.yaml]
 kubectl scale --replicas=[n] -f [~~~.yaml]
 kubectl scale --replicas=[n] replicaset [replicasetname]
