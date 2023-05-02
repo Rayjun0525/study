@@ -360,6 +360,26 @@ kubectl을 사용하는 것은 명령형으로, 여러가지 명령을 커맨드
 YAML과 같은 파일에 지정하는 것은 선언형으로, Git과 같은곳에 저장하여 관리할 수 있으며, 변경하거나 검토하기에도 용이하다.
 시험등과 같은 상황에서는 명령형으로 오브젝트를 생성하는 것이 더 시간절약에 도움이 된다.
 
+## 스케줄링
+### Schedulers
+Pod들을 각각의 Node에 적절히 분배하는 과정을 스케줄링이라고 한다.
+Pod를 특정한 Node에 배포하고자 한다면, nodeName을 추가하여 설정할 수 있다.
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  labels:
+    name: nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    ports:
+      - containerPort: 8080
+
+```
+
 
 ## Kubectl 명령어
 ```bash
@@ -389,4 +409,11 @@ kubectl edit [object] [objectname]
 kubectl get all
 # kubectl에 대한 변수값 설정
 kubectl config set-context $(kubectl config current-context) --namespace=[namespace]
+# Service 생성
+kubectl create service [clusterip,nodeport,LoadBalancer ~] [servicename] --tcp=[port]:[port] --dry-run=client -o yaml
+kubectl expose pod [podname] --port=[port] --name=[servicename] --type=[ClusterIP/ExternalName/LoadBalancer/NodePort]
+kubectl run [podname] --image=[imagename] --port=[port] --expose=true # expose를 사용하면 ClusterIP 타입으로 Pod와 동일한 이름의 Service 생성
 ```
+
+### apply 명령어
+kubectl apply 명령을 사용하면 apply 커맨드는 로컬의 yaml파일과 Cluster의 실제 구동중인 오브젝트의 정보, 마지막 최종 상태를 모두 비교하여 설정된 상황에 맞게 생성, 삭제, 변경 등을 종합적으로 진행한다.
