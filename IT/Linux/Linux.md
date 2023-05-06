@@ -1,18 +1,11 @@
 # Linux
+리눅스 사전 보면서 공부하기.  
 
-### 스토리지
+# A
+1. access
 ```bash
-df -h
-du -sh
+# 지정한 파일의 존재 유무와 권한 확인
+access rw testfile
+echo $?
 ```
-
-### 메모리
-```bash
-free -h
-```
-
-### CPU
-```bash
-cat /proc/cpuinfo
-lscpu
-```
+2. 
