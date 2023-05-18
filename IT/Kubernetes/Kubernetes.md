@@ -372,6 +372,7 @@ metadata:
   labels:
     name: nginx
 spec:
+  nodeName: node01
   containers:
   - name: nginx
     image: nginx
@@ -380,6 +381,33 @@ spec:
 
 ```
 
+### Label, Selector
+Labels는 필터의 키 역할을 하고, Selector는 필터의 값 역할을 한다.
+
+```yaml
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: myapp-replicaset
+  labels:
+    app: myapp        # replicaset에 대한 label
+    type: front-end   # replicaset에 대한 label
+spec:
+  replica: 3
+  selector:
+    matchLabels:
+      type: front-end # pod의 label과 맞아 떨어져야만 Pod가 정상 생성됨
+  template:
+    metadata:
+      name: myapp-pod
+      labels:
+        app: myapp    # pod에 대한 label
+        type: front-end # pod에 대한 label
+  spec:
+    containers:
+    - name: nginx-container
+      image: nginx
+```
 
 ## Kubectl 명령어
 ```bash
@@ -391,6 +419,7 @@ kubectl get pods -n [namespace]
 kubectl get pods --all-namespaces
 kubectl get pods -A
 kubectl get pods -n [namespace] -o wide
+kubectl get pods --watch # 변경 모니터링 가능
 #pod 삭제
 kubectl delete pod [podname] -n [namespace] -o wide
 # yaml 생성
@@ -401,6 +430,7 @@ kubectl create -f [~~~.yaml]
 kubectl apply -f [~~~.yaml]
 kubectl apply -f [~~~/dir] # 디렉토리 내부에 모든 파일들을 한번에 읽고 필요시 object 생성까지 진행
 kubectl replace -f [~~~.yaml]
+kubectl replace --force -f [~~~.yaml] # apply가 허용되지 않는 경우 강제로 삭제하고 생성해줌
 kubectl scale --replicas=[n] -f [~~~.yaml]
 kubectl scale --replicas=[n] replicaset [replicasetname]
 # 오브젝트 수정
