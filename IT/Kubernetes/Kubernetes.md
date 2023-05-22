@@ -409,6 +409,50 @@ spec:
       image: nginx
 ```
 
+### Taints와 Tolerations
+Taints는 node를 오염시켜 pod가 생성되지 못하게 하는 것으로, 지정되지 않은 pod가 node에 생성될 수 있는 상황을 방지하는 역할을 한다.
+반대로 Tolerations는 Pod에 Taints에 대한 면역을 부여하여 해당 Pod가 Taints가 설정되어 있는 node에도 만들어 질 수 있게 해준다.
+
+```bash
+kubectl taint nodes [nodename] [key=value]:[taint-effect(NoSchedule/PreferNoSchedule/NoExecute)]
+kubectl taint nodes node1 app=blue:NoSchedule
+
+kubectl taint nodes node1 app=blue:NoSchedule #이것은 yaml에서 아래와 같이 Tolerations으로 치환시켜 허용 가능
+```
+```yaml
+apiVersion:
+kind: Pod
+metadata:
+  name : myapp-pod
+spec:
+  containers:
+  - name: nginx-container
+    image: nginx
+  tolerations:  ## tolerations 설정을 하더라도, 반드시 taint가 된 node에 배치되는 것은 아니다.
+  - key: "app"
+    operator: "Equal"
+    value: "blue"
+    effect: NoSchedule
+```
+### Node Selectors
+Node Selector는 Pod가 생성될 node를 강제하는 것이다.
+```yaml
+apiVersion:
+kind: Pod
+metadata:
+  name: myapp-pod
+spec:
+  containers:
+  - name: data-processor
+    image: data-processor
+  nodeSelector:
+    size: Large ## key-value 타입의 기존 selector와 동일하게 사용 가능.
+```
+```bash
+
+```
+
+
 ## Kubectl 명령어
 ```bash
 #pod 생성
@@ -443,6 +487,8 @@ kubectl config set-context $(kubectl config current-context) --namespace=[namesp
 kubectl create service [clusterip,nodeport,LoadBalancer ~] [servicename] --tcp=[port]:[port] --dry-run=client -o yaml
 kubectl expose pod [podname] --port=[port] --name=[servicename] --type=[ClusterIP/ExternalName/LoadBalancer/NodePort]
 kubectl run [podname] --image=[imagename] --port=[port] --expose=true # expose를 사용하면 ClusterIP 타입으로 Pod와 동일한 이름의 Service 생성
+# taint를 통한 node에 대한 pod 생성 방어
+kubectl taint nodes [nodename] [key=value]:[taint-effect(NoSchedule/PreferNoSchedule/NoExecute)]
 ```
 
 ### apply 명령어
