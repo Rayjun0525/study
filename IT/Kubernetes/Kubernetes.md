@@ -436,6 +436,7 @@ spec:
 ```
 ### Node Selectors
 Node Selector는 Pod가 생성될 node를 강제하는 것이다.
+다만, node selectors는 여러 조건을 가진(Not, or과 같은 여러 조건) key-value값을 가질 수 없다는 단점이 존재하며, 이를 극복하기 위해 node affinity가 도입되었다.
 ```yaml
 apiVersion:
 kind: Pod
@@ -448,8 +449,29 @@ spec:
   nodeSelector:
     size: Large ## key-value 타입의 기존 selector와 동일하게 사용 가능.
 ```
-```bash
 
+### Node Affinity
+Node Affinity는 Pod를 생성하기 위해 선호되는 Node를 지정하는 것으로, 해당 Pod는 설정된 선호도에 맞춰 Node를 선택해 생성된다.
+
+```yaml
+apiVersion:
+kind: Pod
+metadata:
+  name: myapp-pod
+spec:
+  containers:
+  - name: data-processor
+    image: data-processor
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution: ## preferredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: size
+            operator: In ## NotIn, Exists 등등
+            values:
+            - Large
+            - Medium
 ```
 
 
@@ -489,6 +511,9 @@ kubectl expose pod [podname] --port=[port] --name=[servicename] --type=[ClusterI
 kubectl run [podname] --image=[imagename] --port=[port] --expose=true # expose를 사용하면 ClusterIP 타입으로 Pod와 동일한 이름의 Service 생성
 # taint를 통한 node에 대한 pod 생성 방어
 kubectl taint nodes [nodename] [key=value]:[taint-effect(NoSchedule/PreferNoSchedule/NoExecute)]
+# 오브젝트에 대한 label 지정
+kubectl label [objectkind] [name] [key=value]
+
 ```
 
 ### apply 명령어
