@@ -13,6 +13,6 @@ MySQL
 MongoDB  
 ### 03.Programming
 [golang](IT/Programming_Language/golang/golang.md)  
-[python](IT/Programming_Language/python/)  
+python
 ### 04.Hobby
 [hugo](IT/Programming_Language/golang/hugo/hugo.md)
