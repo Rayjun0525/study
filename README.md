@@ -4,9 +4,9 @@
 ## IT
 ### 01.Infra
 [Kubernetes](IT/Kubernetes/Kubernetes.md)  
-[Linux](IT/Linux/Linux.md)  
+Linux
 ### 02.DBMS
-[PostgreSQL](IT/DBMS/PostgreSQL/PostgreSQL.md)  
+PostgreSQL  
 Maria  
 Oracle  
 MySQL  
