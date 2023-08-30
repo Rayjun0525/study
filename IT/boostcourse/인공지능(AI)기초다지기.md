@@ -18,3 +18,9 @@
   절대경로 - 루트 디렉토리부터 파일 위치까지의 경로  
   상대경로 - 현재 있는 디렉토리부터 타깃 파일까지의 경로 (. : 현재경로, .. : 한단계 위의 경로)
 3. 터미널
+   터미널 - 마우스가 아닌 키보드로 명령을 입력 프로그램 실행
+   GUI(Graphical User Interface)가 아닌 CLI(Command Line Interface)환경
+   Windows - CMD
+   Mac, Linux - Terminal
+   각 터미널에서는 프로그램을 작동하는 shell이 존재한다. (shell 마다 다른 명령어를 사용함)
+   
